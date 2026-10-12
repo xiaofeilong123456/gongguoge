@@ -1,0 +1,164 @@
+{
+	"pages": [
+		{
+			"path": "pages/auth/auth",
+			"style": {
+				"navigationBarTitleText": "登录 / 注册",
+				"navigationBarBackgroundColor": "#F8F6F2",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/record/record",
+			"style": {
+				"navigationBarTitleText": "记下一笔",
+				"navigationBarBackgroundColor": "#F8F6F2",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/stats/stats",
+			"style": {
+				"navigationBarTitleText": "统计",
+				"navigationBarBackgroundColor": "#F8F6F2",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/calendar/calendar",
+			"style": {
+				"navigationBarTitleText": "日历回望",
+				"navigationBarBackgroundColor": "#F8F6F2",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/settings/settings",
+			"style": {
+				"navigationBarTitleText": "设置",
+				"navigationBarBackgroundColor": "#F8F6F2",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/menu/menu",
+			"style": {
+				"navigationBarTitleText": "全部页面",
+				"navigationBarBackgroundColor": "#F8F6F2",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "功过格",
+				"navigationBarBackgroundColor": "#F8F6F2",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/profile/profile",
+			"style": {
+				"navigationBarTitleText": "编辑资料",
+				"navigationBarBackgroundColor": "#F8F6F2",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/categories/categories",
+			"style": {
+				"navigationBarTitleText": "分类管理",
+				"navigationBarBackgroundColor": "#F8F6F2",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/recycle/recycle",
+			"style": {
+				"navigationBarTitleText": "回收站",
+				"navigationBarBackgroundColor": "#F8F6F2",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/feedback/feedback",
+			"style": {
+				"navigationBarTitleText": "意见反馈",
+				"navigationBarBackgroundColor": "#F8F6F2",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/export/export",
+			"style": {
+				"navigationBarTitleText": "数据导出",
+				"navigationBarBackgroundColor": "#F8F6F2",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/reminder/reminder",
+			"style": {
+				"navigationBarTitleText": "提醒设置",
+				"navigationBarBackgroundColor": "#F8F6F2",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/appearance/appearance",
+			"style": {
+				"navigationBarTitleText": "显示设置",
+				"navigationBarBackgroundColor": "#F8F6F2",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/privacy/privacy",
+			"style": {
+				"navigationBarTitleText": "协议与隐私",
+				"navigationBarBackgroundColor": "#F8F6F2",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/about/about",
+			"style": {
+				"navigationBarTitleText": "关于我们",
+				"navigationBarBackgroundColor": "#F8F6F2",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/storage/storage",
+			"style": {
+				"navigationBarTitleText": "本地存储与隐私",
+				"navigationBarBackgroundColor": "#F8F6F2",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/permissions/permissions",
+			"style": {
+				"navigationBarTitleText": "权限管理",
+				"navigationBarBackgroundColor": "#F8F6F2",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/password/password",
+			"style": {
+				"navigationBarTitleText": "修改密码",
+				"navigationBarBackgroundColor": "#F8F6F2",
+				"navigationBarTextStyle": "black"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationStyle": "custom",
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "功过格",
+		"navigationBarBackgroundColor": "#F8F6F2",
+		"backgroundColor": "#F8F5EE"
+	},
+	"uniIdRouter": {}
+}

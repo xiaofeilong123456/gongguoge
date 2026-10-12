@@ -1,0 +1,68 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gongguoge-backend
+  servlet:
+    multipart:
+      max-file-size: ${UPLOAD_MAX_SIZE:2MB}
+      max-request-size: ${UPLOAD_MAX_SIZE:2MB}
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 本地开发默认连本机 MySQL，可用环境变量覆盖（见 backend/.env.example）
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:gongguoge}?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
+    username: ${MYSQL_USER:root}
+    # 本机密码请写入 .env（MYSQL_PASSWORD）或设置同名环境变量，不要提交进仓库
+    password: ${MYSQL_PASSWORD:${MYSQL_PWD:}}
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+jwt:
+  # 生产环境必须通过环境变量 JWT_SECRET 注入（HMAC-SHA256 要求 ≥32 字节随机串）。
+  # 故意不提供默认值：缺配置时启动即失败，避免误用公开的弱密钥上线。
+  # 本地开发由 application-local.yml（已被 .gitignore 忽略）提供。
+  # 生成方式：openssl rand -base64 48
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:604800}
+
+aliyun:
+  sms:
+    # 默认关闭：此时不会调用阿里云，验证码取 mock-code（见 AuthService）。
+    # 需要真实发短信时，设置 ALIYUN_SMS_ENABLED=true 并填入密钥。
+    enabled: ${ALIYUN_SMS_ENABLED:false}
+    # 仅开发环境使用：短信未启用时的固定验证码。
+    # 故意不给默认值——缺配置时后端启动即失败，避免"固定验证码"被带到公网。
+    # 本地开发请在 application-local.yml 配置（已被 .gitignore 忽略）。
+    mock-code: ${ALIYUN_SMS_MOCK_CODE:}
+    access-key-id: ${ALIYUN_SMS_ACCESS_KEY_ID:}
+    access-key-secret: ${ALIYUN_SMS_ACCESS_KEY_SECRET:}
+    sign-name: ${ALIYUN_SMS_SIGN_NAME:}
+    template-code: ${ALIYUN_SMS_TEMPLATE_CODE:}
+    endpoint: ${ALIYUN_SMS_ENDPOINT:dypnsapi.aliyuncs.com}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+gongguoge:
+  upload:
+    # 头像等上传文件的本地存储目录（相对于后端进程工作目录）
+    # 生产环境建议改到独立数据盘或接入对象存储
+    dir: ${UPLOAD_DIR:./uploads}
+    # 单个文件大小上限
+    max-size: ${UPLOAD_MAX_SIZE:2MB}

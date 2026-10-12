@@ -1,0 +1,57 @@
+# ===== 环境变量与密钥（切勿提交）=====
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+
+# ===== 本地开发配置（含本机数据库密码，绝不提交）=====
+application-local.yml
+application-local.yaml
+**/application-local.yml
+
+# ===== 后端构建产物 =====
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+*.class
+
+# ===== 运行时上传目录（头像等用户文件，不入库）=====
+backend/uploads/
+uploads/
+
+# ===== 前端构建产物与依赖 =====
+frontend/node_modules/
+frontend/unpackage/
+frontend/dist/
+frontend/.hbuilderx/
+unpackage/
+
+# ===== IDE / 编辑器 =====
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# ===== 系统与日志 =====
+*.log
+logs/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== 临时文件 =====
+*.tmp
+*~
+
+# ===== 本地留存、不公开的内容 =====
+# 开发过程记录与本地素材：文件保留在本机，但不推到公开仓库
+chat_backup/
+.agents/
+# 设计原型稿与临时图片素材
+gongguoge-final.html
+new-image.png
+rabbit.png
+test_cat.png
+Snipaste_*.png
