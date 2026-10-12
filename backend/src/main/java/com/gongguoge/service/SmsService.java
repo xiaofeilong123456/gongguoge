@@ -58,12 +58,14 @@ public class SmsService {
             RuntimeOptions runtime = new RuntimeOptions();
             response = client.sendSmsVerifyCodeWithOptions(request, runtime);
         } catch (TeaException e) {
-            log.error("[SMS] send failed, phone={}, message={}, recommend={}",
-                    PhoneMask.mask(phone), e.getMessage(), e.getData() == null ? null : e.getData().get("Recommend"), e);
-            throw new BusinessException("短信发送失败：" + e.getMessage());
+            // 带上 code：TeaException 的 message 有时只有 "UNKNOWN"，没有 code 根本无法定位
+            log.error("[SMS] send failed, phone={}, code={}, message={}, recommend={}",
+                    PhoneMask.mask(phone), e.getCode(), e.getMessage(),
+                    e.getData() == null ? null : e.getData().get("Recommend"), e);
+            throw new BusinessException("短信发送失败：" + e.getCode() + " / " + e.getMessage());
         } catch (Exception e) {
             log.error("[SMS] send failed, phone={}", PhoneMask.mask(phone), e);
-            throw new BusinessException("短信发送失败：" + e.getMessage());
+            throw new BusinessException("短信发送失败：" + e.getClass().getSimpleName() + " / " + e.getMessage());
         }
 
         // 阿里云即使 HTTP 200 也可能在 body.code 里返回业务失败（签名/模板不对、欠费、号码非法），
@@ -85,12 +87,46 @@ public class SmsService {
     }
 
     private Client createClient() throws Exception {
-        com.aliyun.credentials.Client credential = new com.aliyun.credentials.Client();
+        // ⚠️ 只能设显式 AK/SK，**不要**再 setCredential(new credentials.Client())。
+        //
+        // 默认凭据链会依次尝试：环境变量 → OIDC → **ECS 实例元数据**。
+        // 部署在阿里云 ECS 且未绑定 RAM 角色时，元数据请求会失败，
+        // 导致短信接口报出难以定位的 "UNKNOWN"（本地电脑上却正常，因为本机
+        // 没有元数据服务，会回退到显式 AK —— 这个差异极难排查）。
         Config config = new Config()
                 .setAccessKeyId(accessKeyId)
-                .setAccessKeySecret(accessKeySecret)
-                .setCredential(credential);
+                .setAccessKeySecret(accessKeySecret);
         config.endpoint = endpoint;
         return new Client(config);
+    }
+
+    /**
+     * 启动自检：开启了真实短信但关键配置为空时直接拒绝启动。
+     * 否则用户会表现为「验证码收不到」，而日志里只有一个含糊的错误。
+     */
+    @jakarta.annotation.PostConstruct
+    void validateSmsConfig() {
+        if (!enabled) {
+            log.warn("[SMS] 真实短信已关闭（aliyun.sms.enabled=false），验证码将固定为 mock 值，仅限开发环境");
+            return;
+        }
+        StringBuilder missing = new StringBuilder();
+        if (!org.springframework.util.StringUtils.hasText(accessKeyId)) {
+            missing.append(" access-key-id");
+        }
+        if (!org.springframework.util.StringUtils.hasText(accessKeySecret)) {
+            missing.append(" access-key-secret");
+        }
+        if (!org.springframework.util.StringUtils.hasText(signName)) {
+            missing.append(" sign-name");
+        }
+        if (!org.springframework.util.StringUtils.hasText(templateCode)) {
+            missing.append(" template-code");
+        }
+        if (missing.length() > 0) {
+            throw new IllegalStateException(
+                    "短信已开启但以下配置为空，请检查 app.env：" + missing);
+        }
+        log.info("[SMS] 真实短信已开启，endpoint={}, signName={}", endpoint, signName);
     }
 }
