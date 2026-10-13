@@ -1,7 +1,7 @@
 # 功过格 · Gongguoge
 
 <p align="center">
-  <img src="docs/screenshots/09-应用图标.png" width="110" alt="功过格" />
+  <img src="frontend/static/app-icon.png" width="110" alt="功过格" />
 </p>
 
 <p align="center">
@@ -32,7 +32,7 @@
 | ![今日](docs/screenshots/01-首页-今日.png) | ![快速记录](docs/screenshots/02-快速记录.png) | ![统计趋势](docs/screenshots/05-统计趋势.png) | ![日历回望](docs/screenshots/06-日历回望.png) | ![设置](docs/screenshots/07-设置.png) |
 
 <p align="center">
-  <img src="docs/screenshots/08-启动页.png" height="330" alt="启动页" />
+  <img src="frontend/static/splash.png" height="330" alt="启动页" />
   &nbsp;&nbsp;&nbsp;
   <img src="docs/screenshots/04-删除撤销.png" height="330" alt="删除撤销" />
 </p>
