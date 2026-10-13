@@ -42,6 +42,7 @@ public class UserService {
         UserVO vo = new UserVO();
         vo.setId(user.getId());
         vo.setPhone(user.getPhone());
+        vo.setUsername(user.getUsername());
         vo.setNickname(user.getNickname());
         vo.setAvatar(user.getAvatar());
         return vo;

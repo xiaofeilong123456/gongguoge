@@ -23,6 +23,7 @@ export function todayDate() {
 const EMPTY_PROFILE = {
   nickname: '功过格用户',
   phone: '',
+  username: '',
   avatar: ''
 }
 
@@ -33,6 +34,7 @@ export function getProfile() {
       return {
         nickname: saved.nickname || EMPTY_PROFILE.nickname,
         phone: saved.phone || '',
+        username: saved.username || '',
         avatar: saved.avatar || ''
       }
     }
@@ -47,6 +49,7 @@ export function saveProfile(profile) {
   uni.setStorageSync(PROFILE_KEY, {
     nickname: safe.nickname || EMPTY_PROFILE.nickname,
     phone: safe.phone || '',
+    username: safe.username || '',
     avatar: safe.avatar || ''
   })
 }

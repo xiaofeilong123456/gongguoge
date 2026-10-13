@@ -25,13 +25,17 @@ public class JwtUtil {
     }
 
     public String generateToken(Long userId, String phone) {
-        return Jwts.builder()
+        // phone 允许为空：用户名注册的账号没有手机号。
+        // 此时不写入该 claim，避免出现 "phone": null 这种可能被解析器拒绝的载荷。
+        io.jsonwebtoken.JwtBuilder builder = Jwts.builder()
                 .subject(userId.toString())
-                .claim("phone", phone)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expiration * 1000))
-                .signWith(getKey())
-                .compact();
+                .signWith(getKey());
+        if (phone != null) {
+            builder.claim("phone", phone);
+        }
+        return builder.compact();
     }
 
     public Claims parseToken(String token) {

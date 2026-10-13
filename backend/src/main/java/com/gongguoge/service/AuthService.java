@@ -134,7 +134,24 @@ public class AuthService {
 
     }
 
+    /**
+     * 注册。两条通道二选一：
+     * <ul>
+     *   <li><b>手机号通道</b>：phone + code（需短信验证码，账号更可信）</li>
+     *   <li><b>用户名通道</b>：username + password（无需手机号）</li>
+     * </ul>
+     */
     public LoginVO register(RegisterRequest request) {
+        if (StringUtils.hasText(request.getUsername())) {
+            return registerByUsername(request);
+        }
+        if (!StringUtils.hasText(request.getPhone())) {
+            throw new BusinessException(400, "请填写手机号与验证码，或改用用户名注册");
+        }
+        if (!StringUtils.hasText(request.getCode())) {
+            throw new BusinessException(400, "验证码不能为空");
+        }
+
         String phone = request.getPhone();
         verifySmsCode(phone, "register", request.getCode());
 
@@ -147,6 +164,7 @@ public class AuthService {
         user.setPhone(phone);
         user.setNickname(StringUtils.hasText(request.getNickname()) ? request.getNickname() : "功过格用户");
         String rawPassword = StringUtils.hasText(request.getPassword()) ? request.getPassword() : UUID.randomUUID().toString().substring(0, 8);
+        checkPasswordStrength(rawPassword);
         user.setPassword(passwordEncoder.encode(rawPassword));
         user.setStatus(1);
         userMapper.insert(user);
@@ -154,9 +172,68 @@ public class AuthService {
         return buildLoginVO(user);
     }
 
+    /**
+     * 用户名通道注册。
+     *
+     * <p>之所以单独开一条「用户名」通道，而不是允许「手机号 + 密码免验证码注册」：
+     * 后者会让任何人都能拿别人的真实手机号抢先注册（手机号无法被验证），
+     * 是个实打实的安全漏洞。用户名与手机号互不干扰，不存在抢占问题。</p>
+     */
+    private LoginVO registerByUsername(RegisterRequest request) {
+        String username = request.getUsername().trim();
+        // 11 位纯数字与手机号长得一模一样，登录时无法区分该走哪条通道，直接禁掉
+        if (username.matches("^\\d{11}$")) {
+            throw new BusinessException(400, "用户名不能是 11 位纯数字（会与手机号混淆）");
+        }
+        if (!StringUtils.hasText(request.getPassword())) {
+            throw new BusinessException(400, "密码不能为空");
+        }
+        checkPasswordStrength(request.getPassword());
+
+        // 唯一索引是 utf8mb4_unicode_ci（大小写不敏感），这里的查询与其保持一致，
+        // 避免出现 Test / test 两个「看起来一样」的账号
+        Long count = userMapper.selectCount(new LambdaQueryWrapper<User>().eq(User::getUsername, username));
+        if (count != null && count > 0) {
+            throw new BusinessException(1001, "用户名已被占用");
+        }
+
+        User user = new User();
+        user.setUsername(username);
+        user.setNickname(StringUtils.hasText(request.getNickname()) ? request.getNickname() : "功过格用户");
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setStatus(1);
+        userMapper.insert(user);
+
+        return buildLoginVO(user);
+    }
+
+    /** 密码强度下限：长度已由 DTO 约束（6-32），这里只挡掉弱到离谱的纯数字密码。 */
+    private void checkPasswordStrength(String password) {
+        if (password != null && password.matches("^\\d+$")) {
+            throw new BusinessException(400, "密码不能是纯数字");
+        }
+    }
+
+    /**
+     * 登录。按以下优先级判定方式：
+     * <ol>
+     *   <li><b>用户名 + 密码</b>（与手机号无关的通道）</li>
+     *   <li><b>手机号 + 验证码</b>（未注册则自动注册）</li>
+     *   <li><b>手机号 + 密码</b></li>
+     * </ol>
+     */
     public LoginVO login(LoginRequest request) {
+        // ① 用户名通道
+        if (StringUtils.hasText(request.getUsername())) {
+            return loginByUsername(request);
+        }
+
+        if (!StringUtils.hasText(request.getPhone())) {
+            throw new BusinessException(400, "请输入用户名或手机号");
+        }
+
+        // ② 验证码登录：已注册直接登录，未注册自动注册并登录
         if (StringUtils.hasText(request.getCode())) {
-            // 验证码登录：已注册直接登录，未注册自动注册并登录
             verifySmsCode(request.getPhone(), "login", request.getCode());
             User user = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getPhone, request.getPhone()));
             if (user == null) {
@@ -174,7 +251,7 @@ public class AuthService {
             return buildLoginVO(user);
         }
 
-        // 密码登录：必须已注册
+        // ③ 手机号 + 密码登录：必须已注册
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getPhone, request.getPhone()));
         if (user == null) {
             throw new BusinessException(1002, "账号或密码错误");
@@ -183,6 +260,26 @@ public class AuthService {
             throw new BusinessException(403, "账号已被禁用");
         }
         if (!StringUtils.hasText(request.getPassword()) || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new BusinessException(1002, "账号或密码错误");
+        }
+        return buildLoginVO(user);
+    }
+
+    /** 用户名 + 密码登录。 */
+    private LoginVO loginByUsername(LoginRequest request) {
+        if (!StringUtils.hasText(request.getPassword())) {
+            throw new BusinessException(400, "密码不能为空");
+        }
+        User user = userMapper.selectOne(
+                new LambdaQueryWrapper<User>().eq(User::getUsername, request.getUsername().trim()));
+        if (user == null) {
+            throw new BusinessException(1002, "账号或密码错误");
+        }
+        if (user.getStatus() == null || user.getStatus() != 1) {
+            throw new BusinessException(403, "账号已被禁用");
+        }
+        if (!StringUtils.hasText(user.getPassword())
+                || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BusinessException(1002, "账号或密码错误");
         }
         return buildLoginVO(user);
@@ -207,6 +304,7 @@ public class AuthService {
         UserVO userVO = new UserVO();
         userVO.setId(user.getId());
         userVO.setPhone(user.getPhone());
+        userVO.setUsername(user.getUsername());
         userVO.setNickname(user.getNickname());
         userVO.setAvatar(user.getAvatar());
         vo.setUserInfo(userVO);

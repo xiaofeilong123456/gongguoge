@@ -77,6 +77,17 @@ class JwtUtilTest {
     }
 
     @Test
+    @DisplayName("phone 为 null（用户名账号）时仍能正常签发与解析，且不带 phone claim")
+    void tokenWorksWithoutPhone() {
+        // 用户名注册的账号没有手机号，token 里不应该出现 "phone": null 这种载荷
+        String token = jwtUtil.generateToken(88L, null);
+        assertNotNull(token);
+        assertTrue(jwtUtil.validateToken(token));
+        assertEquals(88L, jwtUtil.getUserId(token));
+        assertNull(jwtUtil.parseToken(token).get("phone", String.class));
+    }
+
+    @Test
     @DisplayName("畸形 token 不抛异常，仅返回 false")
     void malformedTokenReturnsFalseWithoutThrowing() {
         assertFalse(jwtUtil.validateToken(""));

@@ -6,7 +6,8 @@ USE gongguoge;
 
 CREATE TABLE IF NOT EXISTS t_user (
   id          BIGINT       NOT NULL AUTO_INCREMENT,
-  phone       VARCHAR(20)  NOT NULL COMMENT '手机号，登录账号',
+  phone       VARCHAR(20)  NULL COMMENT '手机号，验证码通道使用；用户名注册的账号为空',
+  username    VARCHAR(32)  NULL COMMENT '用户名，密码通道使用；手机号注册的账号为空',
   password    VARCHAR(100) NULL COMMENT 'BCrypt 加密后的密码，可为空',
   nickname    VARCHAR(50)  NOT NULL DEFAULT '功过格用户',
   avatar      VARCHAR(500) NULL,
@@ -15,7 +16,8 @@ CREATE TABLE IF NOT EXISTS t_user (
   update_time DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   deleted     TINYINT      NOT NULL DEFAULT 0,
   PRIMARY KEY (id),
-  UNIQUE KEY uk_user_phone (phone)
+  UNIQUE KEY uk_user_phone (phone),
+  UNIQUE KEY uk_user_username (username)
 ) ENGINE = InnoDB COMMENT = '用户表';
 
 CREATE TABLE IF NOT EXISTS t_category (

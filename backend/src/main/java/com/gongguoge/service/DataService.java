@@ -40,6 +40,7 @@ public class DataService {
         Map<String, Object> profile = new HashMap<>();
         profile.put("id", user.getId());
         profile.put("phone", user.getPhone());
+        profile.put("username", user.getUsername());
         profile.put("nickname", user.getNickname());
         profile.put("avatar", user.getAvatar());
 
