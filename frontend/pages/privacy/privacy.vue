@@ -23,7 +23,7 @@
         <view class="content-title">功过格隐私政策</view>
         <view class="content-text">本应用仅收集手机号、昵称、头像与功过记录等必要信息。</view>
         <view class="content-text">记录数据用于本地展示、统计和跨设备同步，不用于行为画像。</view>
-        <view class="content-text">用户可随时导出或清空个人数据，账号注销后相关数据会按规则删除。</view>
+        <view class="content-text">用户可随时导出或清空个人数据；在「设置 → 注销账号」可永久删除账号及全部记录。</view>
         <view class="content-text">V1.0 不接入广告 SDK，不申请与功能无关的系统权限。</view>
       </template>
     </view>

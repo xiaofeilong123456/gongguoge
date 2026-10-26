@@ -107,6 +107,9 @@
         <text>{{ loggingOut ? '正在退出…' : '退出登录' }}</text>
       </view>
       <view class="ggg-muted ggg-small logout-hint">退出后需要重新用手机号登录</view>
+      <view class="danger-link" @click="confirmDeleteAccount">
+        {{ deletingAccount ? '正在注销…' : '注销账号' }}
+      </view>
     </view>
 
     <PageNav current="settings" />
@@ -132,6 +135,7 @@ export default {
       assetsVisible: false,
       avatarFailed: false,
       loggingOut: false,
+      deletingAccount: false,
       // 实际用于 <image src> 的值：小程序端可能是 base64 data URI
       avatarSrc: ''
     }
@@ -223,7 +227,7 @@ export default {
       try {
         await authApi.logout()
       } catch (e) {
-        // 服务端注销失败不影响本地退出
+        // 服务端退出失败不影响本地退出
       }
       clearToken()
       clearOfflineScope()
@@ -231,6 +235,59 @@ export default {
       uni.hideLoading()
       this.loggingOut = false
       uni.reLaunch({ url: '/pages/auth/auth' })
+    },
+    // 注销账号：不可恢复，做两次确认
+    confirmDeleteAccount() {
+      if (this.deletingAccount || this.loggingOut) return
+      const pending = queueSize()
+      const extra = pending > 0 ? '\n\n本机还有 ' + pending + ' 条记录未同步，注销后会一并丢弃。' : ''
+      uni.showModal({
+        title: '注销账号',
+        content: '将永久删除你的账号，以及全部记录、标签、回收站数据与反馈。此操作不可恢复。' + extra,
+        confirmText: '继续',
+        confirmColor: '#b8663e',
+        cancelText: '取消',
+        success: (res) => {
+          if (!res.confirm) return
+          uni.showModal({
+            title: '再次确认',
+            content: '注销后无法找回任何数据，确定要注销吗？',
+            confirmText: '确认注销',
+            confirmColor: '#b8663e',
+            cancelText: '我再想想',
+            success: (res2) => {
+              if (!res2.confirm) return
+              this.doDeleteAccount()
+            }
+          })
+        }
+      })
+    },
+    async doDeleteAccount() {
+      this.deletingAccount = true
+      uni.showLoading({ title: '正在注销', mask: true })
+      try {
+        await userApi.deleteAccount()
+      } catch (e) {
+        // 服务端删除失败时不清理本地：避免「本地清了、服务端还在」的不一致
+        uni.hideLoading()
+        this.deletingAccount = false
+        uni.showModal({
+          title: '注销失败',
+          content: (e && e.message) || '请检查网络后重试',
+          showCancel: false
+        })
+        return
+      }
+      // 服务端已删除，本地状态一并清空
+      resetPrivacy()
+      clearToken()
+      clearOfflineScope()
+      clearProfile()
+      uni.hideLoading()
+      this.deletingAccount = false
+      uni.showToast({ title: '账号已注销', icon: 'success', duration: 1500 })
+      setTimeout(() => uni.reLaunch({ url: '/pages/auth/auth' }), 900)
     },
     go(url) {
       uni.navigateTo({ url })
@@ -489,5 +546,15 @@ export default {
 .logout-hint {
   margin-top: 16rpx;
   text-align: center;
+}
+
+/* 注销账号：不可逆操作，做成低调的文字链，避免误触 */
+.danger-link {
+  margin-top: 36rpx;
+  text-align: center;
+  font-size: 26rpx;
+  color: var(--ggg-text-3);
+  text-decoration: underline;
+  padding: 16rpx;
 }
 </style>

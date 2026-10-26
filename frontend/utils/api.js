@@ -24,6 +24,10 @@ export const userApi = {
   },
   updateProfile(data) {
     return request({ url: '/user/profile', method: 'PUT', data })
+  },
+  // 注销账号：服务端删除账号及全部个人数据，调用后当前 token 立即失效
+  deleteAccount() {
+    return request({ url: '/user/account', method: 'DELETE' })
   }
 }
 

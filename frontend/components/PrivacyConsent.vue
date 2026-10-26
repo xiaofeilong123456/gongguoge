@@ -22,7 +22,7 @@
           <view class="block-title">隐私政策要点</view>
           <view class="block-text">仅收集手机号、昵称、头像与功过记录等实现功能所必需的信息。</view>
           <view class="block-text">记录数据用于本地展示、统计与跨设备同步，不用于行为画像，不向第三方出售。</view>
-          <view class="block-text">你可随时导出或清空个人数据；账号注销后相关数据按规则删除。</view>
+          <view class="block-text">你可随时导出或清空个人数据；也可在「设置 → 注销账号」永久删除账号及全部数据。</view>
           <view class="block-text">V1.0 不接入广告 SDK，不申请与功能无关的系统权限。</view>
         </view>
 
